@@ -2,8 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 
-(defun find2 (fn lst)
-  "Find the element in LST that satisfies condition FN."
+(cl-defun find2 (fn lst)
   (if (null lst)
       nil
     (let ((val (funcall fn (car lst))))
@@ -37,6 +36,54 @@
   (should (equal (split-if (lambda (x) (> x 3)) '(1 2 3 4 5))
 		 '((1 2 3) (4 5)))))
 
+
+(cl-defun most (fn lst)
+  (if (null lst)
+      (values nil nil)
+    (let* ((wins (car lst))
+	   (max (funcall fn wins)))
+      (dolist (obj (cdr lst))
+	(let ((score (funcall fn obj)))
+	  (when (> score max)
+	    (setq wins obj
+		  max score))))
+      (values wins max))))
+
+(ert-deftest test-most ()
+  (should (equal (most #'length '((a b) (a b c) (a) (e f g)))
+		 '((a b c) 3))))
+
+
+(cl-defun best (fn lst)
+  (if (null lst)
+      nil
+    (let ((wins (car lst)))
+      (dolist (obj (cdr lst))
+	(if (funcall fn obj wins)
+	    (setq wins obj)))
+      wins)))
+
+(ert-deftest test-best ()
+  (should (equal (best #'> '(1 3 4 2))
+		 4)))
+
+(cl-defun mostn (fn lst)
+  (if (null lst)
+      (values nil nil)
+    (let ((result (list (car lst)))
+	  (max (funcall fn (car lst))))
+      (dolist (obj (cdr lst))
+	(let ((score (funcall fn obj)))
+	  (cond ((> score max)
+		 (setq max score
+		       result (list obj)))
+		((= score max)
+		 (push obj result)))))
+      (values (nreverse result) max))))
+
+(ert-deftest test-mostn ()
+  (should (equal (mostn #'length '((a b) (a b c) (a) (e f g)))
+		 '(((a b c) (e f g)) 3))))
 
 (cl-defun map-> (fn start test-fn succ-fn)
   (do ((i start (funcall succ-fn i))
