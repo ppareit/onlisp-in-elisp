@@ -32,4 +32,13 @@
 		 (remove-if-not #'oddp '(1 2 3 4 5 6)))))
 
 
+(cl-defun memoize (fn)
+  (let ((cache (make-hash-table :test #'equal)))
+    #'(lambda (&rest args)
+	(let ((val (gethash args cache)))
+	  (if val
+	      val
+	    (setf (gethash args cache)
+		  (apply fn args)))))))
+
 ;;; 05-returning-functions.el ends here
