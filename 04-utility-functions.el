@@ -99,6 +99,28 @@
 			'1+)
 		 '(1 0 1 0))))
 
+(cl-defun mkstr (&rest args)
+  (with-output-to-string
+    (dolist (a args) (princ a))))
 
+(ert-deftest test-mkstr ()
+  (should (equal (mkstr pi " pieces of " 'pi)
+		 "3.141592653589793 pieces of pi")))
+
+(cl-defun symb (&rest args)
+  (values (intern (apply #'mkstr args))))
+
+(ert-deftest test-symb ()
+  (should (equal (symb 'ar "Madi" 'L 'L 0)
+		 '(arMadiLL0))))
+
+(cl-defun explode (sym)
+  (map 'list #'(lambda (c)
+		 (intern (make-string 1 c)))
+       (symbol-name sym)))
+
+(ert-deftest test-explode ()
+  (should (equal (explode 'bomb)
+		 '(b o m b))))
 
 ;;; 04-utility-functions.el ends here
