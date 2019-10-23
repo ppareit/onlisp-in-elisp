@@ -31,14 +31,29 @@
   (should (equal (remove-if (complement #'oddp) '(1 2 3 4 5 6))
 		 (remove-if-not #'oddp '(1 2 3 4 5 6)))))
 
-
 (cl-defun memoize (fn)
-  (let ((cache (make-hash-table :test #'equal)))
+  (lexical-let ((cache (make-hash-table :test #'equal)))
     #'(lambda (&rest args)
 	(let ((val (gethash args cache)))
 	  (if val
 	      val
 	    (setf (gethash args cache)
 		  (apply fn args)))))))
+
+(cl-defun compose (&rest fns)
+  (if fns
+      (lexical-let ((fn1 (car (last fns)))
+		    (fns (butlast fns)))
+	#'(lambda (&rest args)
+	    (reduce #'funcall fns
+		    :from-end t
+		    :initial-value (apply fn1 args))))
+    #'identity))
+
+(ert-deftest test-compose ()
+  (should (equal (funcall (compose #'1+ #'find-if)
+			  #'oddp
+			  '(2 3 4))
+		 4)))
 
 ;;; 05-returning-functions.el ends here
