@@ -56,4 +56,27 @@
 			  '(2 3 4))
 		 4)))
 
+;;; Recursion on Cdrs
+
+(setq lexical-binding t)
+(cl-defun lrec (rec &optional base)
+  (labels ((self (lst)
+		 (if (null lst)
+		     (if (functionp base)
+			 (funcall base)
+		       base)
+		   (funcall rec (car lst)
+			    #'(lambda ()
+				(self (cdr lst)))))))
+    #'self))
+
+(ert-deftest test-lrec-list-length ()
+  (funcall (lrec #'(lambda (x f) (1+ (funcall f))) 0) '(a b c))
+  3)
+
+(ert-deftest test-lrec-list-odd ()
+  (funcall (lrec #'(lambda (x f) (and (oddp x) (funcall f))) t)
+	   '(1 3 5))
+  t)
+
 ;;; 05-returning-functions.el ends here
