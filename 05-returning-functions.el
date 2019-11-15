@@ -79,4 +79,26 @@
 	   '(1 3 5))
   t)
 
+;;; 5.6 Recursion on Subtrees
+
+(setq x '(a b)
+      listx (list x 1))
+
+(eq x (car (copy-list listx)))
+(equal x (car (copy-list listx)))
+
+(eq x (car (copy-tree listx)))
+(equal x (car (copy-tree listx)))
+
+(cl-defun our-copy-tree (tree)
+  (if (atom tree)
+      tree
+    (cons (our-copy-tree (car tree))
+	  (if (cdr tree) (our-copy-tree (cdr tree))))))
+
+(ert-deftest test-our-copy-tree ()
+    (let* ((x '(a b))
+	   (listx (list x 1)))
+      (equal x (car (our-copy-tree listx)))))
+
 ;;; 05-returning-functions.el ends here
