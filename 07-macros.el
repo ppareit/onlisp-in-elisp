@@ -45,6 +45,51 @@
 	  (do-that)
 	  obj)
 
+;; Defining Simple Macros
+
+(defmacro pp-memq (obj lst)
+  "...OBJ.LST..."
+  `(cl-member ,obj ,lst :test #'eq))
+
+(memq 5 '(1 2 3 4 5 6 7))
+
+(pp-memq 5 '(1 2 3 4 5 6 7))
+
+(defvar *hungry* 5)
+
+(defun hungry ()
+  "Return t after a couple of times."
+  (if (<= *hungry* 0)
+      nil
+    (setq *hungry* (- *hungry* 1))
+    t))
+
+(defun stare-intently ()
+  "..."
+  (message "Staring intently")
+  (sleep-for 1))
+
+(defun meow ()
+  "..."
+  (message "Meow, meow, meow, ...")
+  (sleep-for 1))
+
+(defun rub-against-legs ()
+  "..."
+  (message "Rubbing against the legs")
+  (sleep-for 1))
+
+(defmacro pp-while (test &rest body)
+  ".TEST.BODY."
+  `(do ()
+       ((not ,test))
+     ,@body))
+
+(pp-while (hungry)
+  (stare-intently)
+  (meow)
+  (rub-against-legs))
+
 
 (provide '07-macros)
 ;;; 07-macros.el ends here
